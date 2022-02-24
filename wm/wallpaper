@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+
+# current wallpaper wrapper
+set -eu
+IFS=$'\n\t'
+
+sd wm wall hashwall -s 12 > /dev/null 2>&1 && echo "wallpaper set" || echo "wallpaper not set" && exit 1

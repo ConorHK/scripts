@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+
+# attempt connection to bluetooth speaker
+set -eu
+IFS=$'\n\t'
+
+echo "connect C0:28:8D:85:86:D7\n" | bluetoothctl

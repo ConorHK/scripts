@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+
+# check internet connection without using ping
+set -eu
+IFS=$'\n\t'
+
+case "$(curl -s --max-time 1 -I https://archlinux.org | sed 's/^[^ ]*  *\([0-9]\).*/\1/; 1q')" in
+  [23]) echo "connected" && exit 0;;
+  5) echo "blocked" && exit 1;;
+  *) echo "disconnected" && exit 1;;
+esac

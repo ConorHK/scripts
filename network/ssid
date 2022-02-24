@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+
+# prints current ssid
+set -eu
+IFS=$'\n\t'
+
+hostname=$(hostname)
+if [ "$hostname" = "$LAPTOP" ]; then
+  nmcli -t -f active,ssid dev wifi | egrep '^yes' | cut -d\: -f2
+else
+  echo "Ethernet"
+fi
