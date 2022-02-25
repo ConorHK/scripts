@@ -5,9 +5,6 @@
 # written by: neeasade; modified by conorhk
 # depends on wmutils/opt
 
-set -eu
-IFS=$'\n\t'
-
 bspwindows() {
 	case "${1:-active}" in
 	active)
