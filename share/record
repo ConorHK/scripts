@@ -1,19 +1,46 @@
 #!/usr/bin/env sh
 
-# records screen selection in mp4
+# -f, -s : records screen selection in mp4
 
 # depends on: ffmpeg, slop
 set -eu
 
-if pgrep ffmpeg >/dev/null 2>&1; then
-	pkill ffmpeg >/dev/null 2>&1
-	notify-send "Record" "Recording ended"
-else
-	notify-send "Record" "Select region to record"
+selection() {
+	if pgrep ffmpeg >/dev/null 2>&1; then
+		pkill ffmpeg >/dev/null 2>&1
+		notify-send "Record" "Recording ended"
+	else
+		notify-send "Record" "Select region to record"
 
-	eval $(slop --color=0.874,0.874,0.686 -b 2 -f 'W=%w H=%h X=%x Y=%y')
-	input=$(date '+%Y-%m-%d_%H-%M-%S')
-  mkdir -p $HOME/media/screencaps
-	output=$HOME/media/screencaps/${input}.mp4
-	ffmpeg -f x11grab -video_size ${W}x${H} -framerate 20 -i $DISPLAY+${X},${Y} -f alsa -i default -c:v libx264 -preset ultrafast -c:a aac $output
-fi
+		eval $(slop --color=0.874,0.874,0.686 -b 2 -f 'W=%w H=%h X=%x Y=%y')
+		input=$(date '+%Y-%m-%d_%H-%M-%S')
+		mkdir -p $HOME/media/screencaps
+		output=$HOME/media/screencaps/${input}.mp4
+		ffmpeg -f x11grab -video_size ${W}x${H} -framerate 30 -i $DISPLAY+${X},${Y} -f alsa -i default -c:v libx264 -preset ultrafast -c:a aac $output
+	fi
+}
+
+full() {
+  if pgrep ffmpeg >/dev/null 2>&1; then
+		pkill ffmpeg >/dev/null 2>&1
+		notify-send "Record" "Recording ended"
+	else
+		notify-send "Record" "Recording started"
+
+    active_screen="$(bspc query -M -m .focused --names)"
+    dimensions=$(xrandr --current | sed -n "/^$active_screen/{n;p;}" | uniq | awk '{print $1}')
+		input=$(date '+%Y-%m-%d_%H-%M-%S')
+		mkdir -p $HOME/media/screencaps
+		output=$HOME/media/screencaps/${input}.mp4
+		ffmpeg -f x11grab -video_size "$dimensions" -framerate 30 -i $DISPLAY -f alsa -i default  -c:v libx264 -preset ultrafast -c:a aac $output
+	fi
+}
+
+case "$1" in
+-s | --selection)
+	selection
+	;;
+-f | --full | *)
+	full
+	;;
+esac
