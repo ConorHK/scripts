@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+
+# file: uploads file to 0x0.st and copies link to clipboard.
+# max filesize is 512 MiB
+set -eu
+IFS=$'\n\t'
+
+[ -f "$1" ] && op=cat
+
+"${op:-echo}" "${1:-`cat -`}" |
+    curl -F file='@-' 'https://0x0.st' | xclip -selection c
