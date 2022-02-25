@@ -4,10 +4,6 @@
 set -eu
 IFS=$'\n\t'
 
-echo "Setting workspaces"
-bspc monitor DP1 -d 1 2 3 4 5
-bspc monitor eDP1 -d 6 7 8 9 0
-
 echo "Setting monitor layout"
 xrandr --output DP1 --left-of eDP1 --mode 2560x1440
 
