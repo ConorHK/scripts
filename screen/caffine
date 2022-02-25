@@ -10,7 +10,6 @@ if [ "$(xset q | grep Enabled | awk '{print $3}')" = "Enabled" ]; then
     xset s 0 0
     xset s off
     xset s noblank
-    pkill idle.sh
     dunstify -r 5534 "Caffeine" "Enabled"
 else
     xset +dpms
@@ -18,6 +17,5 @@ else
     xset s blank
     xset s 180 120        #&& DISPLAY=:8 xset s 180
     xset dpms 305 600 600 #&& DISPLAY=:8 xset dpms 300
-
     dunstify -r 5534 "Caffeine" "Disabled"
 fi
