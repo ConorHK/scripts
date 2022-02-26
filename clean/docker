@@ -1,8 +1,6 @@
 #!/usr/bin/env sh
 
 # cleanup all docker containers, images, volumes, networks
-set -eu
-IFS=$'\n\t'
 
 # Stop all containers
 docker stop `docker ps -qa`
