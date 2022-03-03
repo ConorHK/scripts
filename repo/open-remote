@@ -6,11 +6,11 @@
 set -eu
 
 remote="$(git config remote.origin.url)"
-remote_type="$(printf $remote | cut -c -5)"
+remote_type="$(printf '%s' "$remote" | cut -c -5)"
 if [ X"$remote_type" = X"https" ]; then
 	repo="$remote"
 else
-	repo="https://$(printf $remote | cut -d '@' -f 2 | tr ':' '/')"
+	repo="https://$(printf "%s" "$remote" | cut -d "@" -f 2 | tr ":" "/")"
 fi
 
-sd-open $repo
+sd-open "$repo"
