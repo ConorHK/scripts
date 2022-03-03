@@ -1,10 +1,8 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 # pretty sysinfo print
 
 # Written by barbarossa
-set -eu
-IFS=$'\n\t'
 
 # color escapes
 BLK="\e[30m"
