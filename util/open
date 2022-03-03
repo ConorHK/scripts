@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+
+# opens file/link etc. based on OS
+# usage: open <file/link>
+set -eu
+
+os="$(uname -s)"
+if [ "$os" = "Darwin" ]; then
+    open "$1" >/dev/null 2>&1 &
+elif [ "$os" = "Linux" ]; then
+    xdg-open "$1" >/dev/null 2>&1 &
+fi
