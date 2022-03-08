@@ -37,6 +37,7 @@ res=24
 step=4
 bg="#222222"
 fg="#3e3e3e"
+spacing=-1
 
 # evaluate
 while [ $# -gt 0 ]; do
@@ -55,6 +56,10 @@ while [ $# -gt 0 ]; do
 		;;
 	-r)
 		res="$2"
+		shift
+		;;
+	-p)
+		spacing="$2"
 		shift
 		;;
 	--)
@@ -76,7 +81,7 @@ max=$((res * 2 + 2))
 i=0
 lines=""
 while
-	lines="$lines line $i,-1 -1,$i"
+	lines="$lines line $i,$spacing,$spacing,$i"
 	i="$((i + step))"
 	[ "$i" -lt "$max" ]
 do :; done
