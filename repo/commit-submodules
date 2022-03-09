@@ -6,6 +6,6 @@ set -o nounset
 
 for i in $(git submodule foreach --quiet 'echo $path'); do
   echo "Staging $i"
-  git add "$i"
+  git add "$(git rev-parse --show-toplevel)/$i"
 done
 git commit -m "auto: Update submodules"
