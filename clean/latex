@@ -1,8 +1,6 @@
 #!/usr/bin/env sh
 
 # cleanup latex auxillary files
-set -eu
-IFS=$'\n\t'
 
 exts="aux bbl blg brf idx ilg ind lof log lol lot nav out snm tdo toc synctex.gz"
 
