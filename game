@@ -1,0 +1,15 @@
+#!/usr/bin/env sh
+
+# toggle unclutter and picom for gaming
+set -o errexit
+set -o nounset
+IFS=
+	
+if pgrep -x "unclutter" > /dev/null && pgrep -x "picom" > /dev/null
+then
+    pkill unclutter && pkill picom && notify-send "Game ready"
+else
+    unclutter --timeout 3 -jitter 50 --ignore-scrolling &
+    picom --config $XDG_CONFIG_HOME/picom/picom.conf -b
+    notify-send "Unclutter and picom enabled"
+fi
