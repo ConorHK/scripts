@@ -1,0 +1,18 @@
+#!/usr/bin/env sh
+
+# run local hooks
+set -o errexit
+set -o nounset
+IFS=
+	
+_run_local_hook() {
+  hook_path="./.git/hooks/$1"
+  shift
+  if test -x "$hook_path"; then
+    "$hook_path" "$@"
+  else
+    return 0
+  fi
+}
+
+_run_local_hook "$@"

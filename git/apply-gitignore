@@ -1,0 +1,17 @@
+#!/usr/bin/env sh
+
+# remove all tracked files that match gitignore
+
+# written by jrasmusbm
+set -o errexit
+set -o nounset
+IFS=
+	
+_git_apply_gitignore() {
+  (
+    set -x
+    git ls-files -ci --exclude-standard -z | xargs -0 git rm --cached
+  )
+}
+
+_git_apply_gitignore

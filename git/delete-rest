@@ -1,0 +1,17 @@
+#!/usr/bin/env sh
+
+# deletes non git files
+
+# written by jrasmusbm
+set -o errexit
+set -o nounset
+IFS=
+	
+_git_delete_non_git_files() {
+  (
+    set -x
+    git ls-files -o --directory "$@" | xargs rm -irf
+  )
+}
+
+_git_delete_non_git_files "$@"

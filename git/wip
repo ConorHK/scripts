@@ -1,0 +1,17 @@
+#!/usr/bin/env sh
+
+# commit everything as a work in progress
+
+# written by jrasmusbm
+set -o errexit
+set -o nounset
+IFS=
+	
+_git_wip_everything() {
+  (
+    set -x
+    git add --all && git commit --no-verify -m "WIP" "$@"
+  )
+}
+
+_git_wip_everything "$@"

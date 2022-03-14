@@ -1,0 +1,34 @@
+#!/usr/bin/env sh
+
+# update main branch from remote
+
+# written by jrasmusbm
+set -o errexit
+set -o nounset
+IFS=
+	
+_git_update_main() {
+  (
+    set -e
+    local_main=$(git local-main-branch)
+    remote_main=$(git remote-main-branch)
+    needs_stash=$(git is-clean || echo "yes")
+
+    if test -n "$needs_stash"; then
+      git stash push -u
+    fi
+
+    git fetch --all
+    git stash "$local_main"
+    git ff-merge "$remote_main"
+    git remove-merged
+    git stash - "$@" 2>/dev/null || true
+
+    if test -n "$needs_stash"; then
+      git stash pop
+      echo "Applied autostash."
+    fi
+  )
+}
+
+_git_update_main "$@"

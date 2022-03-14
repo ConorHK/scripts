@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+
+# return true if repo is clean
+
+# written by jrasmusbm
+set -o errexit
+set -o nounset
+IFS=
+	
+! git is-dirty "$@"

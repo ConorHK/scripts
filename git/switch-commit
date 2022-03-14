@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+
+# fuzzy switch to commit
+
+# written by jrasmusbm
+set -o errexit
+set -o nounset
+IFS=
+	
+hash=$(git log --pretty='%C(Yellow)%h %C(cyan)%ad %C(reset)%s' --date='format-local:%Y, %b %d' --all | fzf --reverse | grep -o -E "^([0-9a-z])+")
+git switch "$hash"

@@ -1,0 +1,21 @@
+#!/usr/bin/env sh
+
+# reset branch with confirmation
+
+# written by jrasmusbm
+set -o errexit
+set -o nounset
+IFS=
+	
+_git_reset_hard() {
+  if ! (git is-clean || confirm "Git tree is dirty, do you want to continue?"); then
+    return 1
+  fi
+
+  (
+    set -x
+    git reset --hard "$@"
+  )
+}
+
+_git_reset_hard "$@"

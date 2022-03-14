@@ -1,0 +1,24 @@
+#!/usr/bin/env sh
+
+# git branch delete
+
+# written by jrasmusbm
+set -o errexit
+set -o nounset
+IFS=
+	
+_git_branch_delete() {
+  if [ -z "$1" ]; then # g bd
+    selected_branch_ref=$(git branch --format='%(refname)' | fzf --reverse)
+    selected_branch=${selected_branch_ref#*/*/}
+  else # g bd <branch>
+    selected_branch="$1"
+  fi
+
+  (
+    set -x
+    git branch -D "$selected_branch"
+  )
+}
+
+_git_branch_delete "$@"

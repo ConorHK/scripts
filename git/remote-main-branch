@@ -1,0 +1,26 @@
+#!/usr/bin/env sh
+
+# print name of remote main branch
+
+# written by jrasmusbm
+set -o errexit
+set -o nounset
+IFS=
+	
+_branch_exists_remotely() {
+  git branch --list --remote "$1"
+}
+
+_git_get_remote_main_branch() {
+  if test -n "$(_branch_exists_remotely 'origin/main')"; then
+    printf "origin/main\n"
+  elif test -n "$(_branch_exists_remotely 'origin/master')"; then
+    printf "origin/master\n"
+  elif test -n "$(_branch_exists_remotely 'origin/mainline')"; then
+    printf "origin/mainline\n"
+  else
+    exit 1
+  fi
+}
+
+_git_get_remote_main_branch

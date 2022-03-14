@@ -1,0 +1,26 @@
+#!/usr/bin/env sh
+
+# print local main branch name
+
+# written by jrasmusbm
+set -o errexit
+set -o nounset
+IFS=
+	
+_branch_exists_locally() {
+  git branch --list "$1"
+}
+
+_git_get_local_main_branch() {
+  if test -n "$(_branch_exists_locally 'main')"; then
+    printf "main\n"
+  elif test -n "$(_branch_exists_locally 'master')"; then
+    printf "master\n"
+  elif test -n "$(_branch_exists_locally 'mainline')"; then
+    printf "mainline\n"
+  else
+    exit 1
+  fi
+}
+
+_git_get_local_main_branch

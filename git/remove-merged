@@ -1,0 +1,16 @@
+#!/usr/bin/env sh
+
+# remove merged branches
+
+# written by jrasmusbm
+set -o errexit
+set -o nounset
+IFS=
+	
+_git_remove_merged() {
+  head="$(git branch --show-current)"
+  merged_branches=$(git branch --merged | tr -d ' *' | grep -v "^$head\$")
+  echo "$merged_branches" | xargs -I '{}' -n 1 sh -c 'test -n "$@" && git branch-delete "$@"' _ {}
+}
+
+_git_remove_merged "$@"
