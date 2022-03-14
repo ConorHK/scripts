@@ -1,0 +1,15 @@
+#!/usr/bin/env sh
+
+# git add all: written by jrasmusbm
+set -o errexit
+set -o nounset
+IFS=
+	
+git_add_all() {
+  (
+    set -x
+    git add --all "$@"
+  )
+}
+
+git_add_all "$@"
