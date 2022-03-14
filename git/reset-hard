@@ -8,7 +8,7 @@ set -o nounset
 IFS=
 	
 _git_reset_hard() {
-  if ! (git is-clean || confirm "Git tree is dirty, do you want to continue?"); then
+  if ! (git is-clean || util-confirm "Git tree is dirty, do you want to continue?"); then
     return 1
   fi
 
