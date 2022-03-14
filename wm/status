@@ -46,8 +46,8 @@ greeting() {
 }
 
 soundinfo() {
-	volume=$(sd-audio -s volume)
-	mute_status=$(sd-audio -s muted)
+	volume=$(audio -s volume)
+	mute_status=$(audio -s muted)
 	spotify_metadata=$(dbus-send --print-reply --dest=org.mpris.MediaPlayer2.spotify /org/mpris/MediaPlayer2 org.freedesktop.DBus.Properties.Get string:org.mpris.MediaPlayer2.Player string:Metadata 2>/dev/null)
 
 	if [ "$mute_status" = "No active sink" ]; then
@@ -159,13 +159,13 @@ case "$1" in
 	notify-send "Battery" "$power"
 	;;
 --internet)
-	notify-send "Internet" "Status: $(sd-connection)"
+	notify-send "Internet" "Status: $(network-connection)"
 	;;
 *)
 	wm=$(env printf "%-60s %s\n" "you_are_on_workspace<span_foreground='#878787'>_" "_</span><span_foreground='#57875f'>$(bspwm --simple)</span>")
 	cal=$(env printf "%-60s %s\n" "it_is_currently<span_foreground='#878787'>_" "_</span><span_foreground='#af5f5f'>$(calendar --time)</span>")
 	sound=$(env printf "%-60s %s\n" "volume_is_<span_foreground='#878787'>_" "_</span><span_foreground='#87afaf'>$(soundinfo --simple)</span>")
-	interwebs=$(env printf "%-60s %s\n" "internet_is<span_foreground='#878787'>_" "_</span><span_foreground='#af8787'>$(sd-connection)</span>")
+	interwebs=$(env printf "%-60s %s\n" "internet_is<span_foreground='#878787'>_" "_</span><span_foreground='#af8787'>$(network-connection)</span>")
 	info="$wm\n$cal\n$interwebs"
 
 	light_output=$(brightness --simple)

@@ -11,7 +11,7 @@ echo "Setting up keyboard"
 setxkbmap -option "" -v && setxkbmap us
 
 echo "Resetting wallpaper"
-sd-wallpaper
+wm-wallpaper
 
 echo "Connecting to mouse"
 echo "power on\nconnect CF:40:1B:98:63:01\n" | bluetoothctl
