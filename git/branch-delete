@@ -4,7 +4,6 @@
 
 # written by jrasmusbm
 set -o errexit
-set -o nounset
 IFS=
 	
 _git_branch_delete() {
