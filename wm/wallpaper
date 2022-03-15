@@ -4,4 +4,4 @@
 set -eu
 IFS=$'\n\t'
 
-wm-hashwall -s 5 -b "#171717" -f "#432f2f" -p -25> /dev/null 2>&1 && echo "wallpaper set" || echo "wallpaper not set"
+wm-wall-hashwall -s 5 -b "#171717" -f "#432f2f" -p -25> /dev/null 2>&1 && echo "wallpaper set" || echo "wallpaper not set"
