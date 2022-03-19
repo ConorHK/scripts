@@ -1,0 +1,20 @@
+#!/usr/bin/env sh
+
+# dynamically sets alacritty font size based on screen resolution
+
+# required due to bug with bitmap font icons and DPI scaling with two monitors of different resolutions - bit
+# niche for a fix
+# Requires bspwm and jq
+
+set -o errexit
+set -o nounset
+IFS=
+	
+monitor_width="$(bspc query -T -m focused | jq ".rectangle.width")"
+
+if ! test -f "$XDG_CONFIG_HOME/alacritty/$monitor_width.yml"; then
+  echo "Config $monitor_width not found"
+  exit 1
+fi
+
+alacritty --config-file "$XDG_CONFIG_HOME/alacritty/$monitor_width.yml"
