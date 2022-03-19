@@ -1,9 +1,0 @@
-#!/usr/bin/env sh
-
-# run spotifyd and spt
-set -o errexit
-set -o nounset
-IFS=
-	
-[ ! $(pidof spotifyd) ] && spotifyd
-spt
