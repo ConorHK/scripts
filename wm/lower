@@ -1,0 +1,17 @@
+#!/usr/bin/env sh
+
+# tile -> float -> hide window: for gesture
+set -o errexit
+set -o nounset
+IFS=
+	
+quoted_state="$(bspc query -n focused -T | jq '.client.state')"
+state=$(echo "$quoted_state" | tr -d '"')
+
+if [ "$state" = "fullscreen" ]; then
+	bspc node -t tiled
+elif [ "$state" = "tiled" ]; then
+	bspc node -t floating
+else
+	wm-scratch-hide
+fi

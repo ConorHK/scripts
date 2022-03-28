@@ -1,0 +1,21 @@
+#!/usr/bin/env sh
+
+# show -> float -> tiled -> fullscreen: for gestures
+set -o nounset
+IFS=
+	
+window="$(bspc query -n focused -T)"
+
+if [ ! "$window" ]; then
+	wm-scratch-show
+	exit 0
+fi
+
+quoted_state="$(echo $window | jq '.client.state')"
+state=$(echo "$quoted_state" | tr -d '"')
+
+if [ "$state" = "floating" ]; then
+	bspc node -t tiled
+elif [ "$state" = "tiled" ]; then
+	bspc node -t fullscreen
+fi
