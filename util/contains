@@ -1,0 +1,19 @@
+#!/usr/bin/env sh
+
+# substring check
+set -o errexit
+set -o nounset
+IFS=
+	
+_contains() {
+    string="$1"
+    substring="$2"
+    if test "${string#*$substring}" != "$string"
+    then
+        return 0    # $substring is in $string
+    else
+        return 1    # $substring is not in $string
+    fi
+}
+
+_contains "$@"
