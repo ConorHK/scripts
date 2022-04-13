@@ -1,0 +1,38 @@
+#!/usr/bin/env python
+
+# Handle desktops (next, prev, home), monitor respecting
+
+import os
+import sys
+import json
+import argparse
+import subprocess
+
+parser = argparse.ArgumentParser(description="desktop handler")
+parser.add_argument("--prev", action="store_true")
+parser.add_argument("--next", action="store_true")
+parser.add_argument("--home", action="store_true")
+
+arguments = parser.parse_args()
+if sum(list(vars(arguments).values())) != 1:
+    sys.exit("Invalid number of arguments")
+
+focused_desktop = int(
+    json.loads(subprocess.getoutput("bspc query -d focused -T"))["name"]
+)
+relative_desktop = focused_desktop if focused_desktop != 0 else 10
+monitor_data = json.loads(subprocess.getoutput("bspc query --monitor focused -T"))
+desktops = [int(desktop["name"]) for desktop in monitor_data["desktops"]]
+
+if arguments.home:
+    os.system(f"bspc desktop -f {desktops[0]}")
+    sys.exit(0)
+
+next_desktop = relative_desktop + 1 if arguments.next else relative_desktop - 1
+next_desktop = 0 if next_desktop == 10 else next_desktop # FIXME: hacky
+wrap_desktop = desktops[0] if arguments.next else desktops[-1]
+
+if next_desktop in desktops or next_desktop == 0 and relative_desktop == 9:
+    os.system(f"bspc desktop -f {next_desktop}")
+else:
+    os.system(f"bspc desktop -f {wrap_desktop}")
