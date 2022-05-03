@@ -12,12 +12,13 @@ from subprocess import run as subprocess_run
 SUCCESS_PRIORITY = int(getenv("SUCCESS_PRIORITY", 3))
 FAILURE_PRIORITY = int(getenv("FAILURE_PRIORITY", 4))
 
+# Hide sensitive commands by inline setting env variable
+ALIAS = getenv("ALIAS", None)
+
 
 def _send_notification(command, error):
-    url = getenv("NTFY_LINK")
-
     data = {
-        "topic": url,
+        "topic": getenv("NTFY_TOPIC"),
         "message": f"* {command} * completed with return code {error}",
         "title": "Command success",
         "priority": SUCCESS_PRIORITY,
@@ -33,9 +34,10 @@ def main():
     if not all(1 <= priority <= 5 for priority in [SUCCESS_PRIORITY, FAILURE_PRIORITY]):
         raise ValueError("Priority ranges between 1 (minimum) and 5 (maximum)")
 
-    command = " ".join(sys.argv[1:])
-    process = subprocess_run(command, shell=True)
-    _send_notification(command, process.returncode)
+    command = sys.argv[1:]
+    process = subprocess_run(command)
+    command_string = " ".join(command) if not ALIAS else ALIAS
+    _send_notification(command_string, process.returncode)
 
 
 if __name__ == "__main__":
