@@ -30,7 +30,7 @@ def _send_notification(command, error):
 
 
 def main():
-    if not (1 <= SUCCESS_PRIORITY <= 5 and 1 <= FAILURE_PRIORITY <= 5):
+    if not all(1 <= priority <= 5 for priority in [SUCCESS_PRIORITY, FAILURE_PRIORITY]):
         raise ValueError("Priority ranges between 1 (minimum) and 5 (maximum)")
 
     command = " ".join(sys.argv[1:])
