@@ -6,7 +6,6 @@
 import sys
 from os import getenv
 from requests import post
-from subprocess import CalledProcessError
 from subprocess import run as subprocess_run
 
 
@@ -23,17 +22,11 @@ def _send_notification(command, error):
         "title": "Command success",
         "priority": SUCCESS_PRIORITY,
     }
-
     if error:
         data["title"] = "Command failure"
         data["priority"] = FAILURE_PRIORITY
+
     post("https://ntfy.sh", json=data)
-
-
-def _run_command(command):
-    process = subprocess_run(command, shell=True)
-    if process.returncode != 0:
-        raise CalledProcessError(process.returncode, process.args)
 
 
 def main():
@@ -41,11 +34,8 @@ def main():
         raise ValueError("Priority ranges between 1 (minimum) and 5 (maximum)")
 
     command = " ".join(sys.argv[1:])
-    try:
-        _run_command(command)
-        _send_notification(command, 0)
-    except CalledProcessError as exc:
-        _send_notification(command, exc.returncode)
+    process = subprocess_run(command, shell=True)
+    _send_notification(command, process.returncode)
 
 
 if __name__ == "__main__":
