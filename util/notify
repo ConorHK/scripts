@@ -3,21 +3,31 @@
 # notify with command result using ntfy
 import os
 import sys
-import subprocess
+from requests import post
+from subprocess import CalledProcessError
+from subprocess import run as subprocess_run
+
 
 def _send_notification(command, error):
     url = os.environ["NTFY_LINK"]
+
+    data = {
+        "topic": url,
+        "message": f"* {command} * completed with return code {error}",
+        "title": "Command success",
+        "priority": 3,
+    }
+
     if error:
-        json = f'{{"topic": "{url}", "message": "* {command} * completed with return code {error}", "title": "Command failed", "tags": ["failure"], "priority": 4}}'
-    else:
-        json = f'{{"topic": "{url}", "message": "* {command} * completed successfully", "title": "Command finished", "tags": ["success"], "priority": 3}}'
-    os.system(f"curl -d '{json}' ntfy.sh/")
+        data["title"] = "Command failure"
+        data["priority"] = 4
+    post("https://ntfy.sh", json=data)
 
 
 def _run_command(command):
-    process = subprocess.run(command, shell=True)
+    process = subprocess_run(command, shell=True)
     if process.returncode != 0:
-        raise subprocess.CalledProcessError(process.returncode, process.args)
+        raise CalledProcessError(process.returncode, process.args)
 
 
 def main():
@@ -25,7 +35,7 @@ def main():
     try:
         _run_command(command)
         _send_notification(command, 0)
-    except subprocess.CalledProcessError as exc:
+    except CalledProcessError as exc:
         _send_notification(command, exc.returncode)
 
 
