@@ -1,26 +1,32 @@
 #!/usr/bin/env python
 
 # notify with command result using ntfy
-import os
+
+# Override success and failure priorities by inline setting env variables
 import sys
+from os import getenv
 from requests import post
 from subprocess import CalledProcessError
 from subprocess import run as subprocess_run
 
 
+SUCCESS_PRIORITY = int(getenv("SUCCESS_PRIORITY", 3))
+FAILURE_PRIORITY = int(getenv("FAILURE_PRIORITY", 4))
+
+
 def _send_notification(command, error):
-    url = os.environ["NTFY_LINK"]
+    url = getenv("NTFY_LINK")
 
     data = {
         "topic": url,
         "message": f"* {command} * completed with return code {error}",
         "title": "Command success",
-        "priority": 3,
+        "priority": SUCCESS_PRIORITY,
     }
 
     if error:
         data["title"] = "Command failure"
-        data["priority"] = 4
+        data["priority"] = FAILURE_PRIORITY
     post("https://ntfy.sh", json=data)
 
 
@@ -31,6 +37,9 @@ def _run_command(command):
 
 
 def main():
+    if not (1 <= SUCCESS_PRIORITY <= 5 and 1 <= FAILURE_PRIORITY <= 5):
+        raise ValueError("Priority ranges between 1 (minimum) and 5 (maximum)")
+
     command = " ".join(sys.argv[1:])
     try:
         _run_command(command)
