@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+
+# manual docking
+set -o errexit
+set -o nounset
+IFS=
+	
+wm-docked && bspc monitor DP1 -d 1 2 3 4 5 && bspc monitor eDP1 -d 6 7 8 9 0
