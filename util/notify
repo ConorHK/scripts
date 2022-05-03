@@ -2,13 +2,13 @@
 
 # notify with command result using ntfy
 
-# Override success and failure priorities by inline setting env variables
 import sys
 from os import getenv
 from requests import post
 from subprocess import run as subprocess_run
 
 
+# Override priorities by inline setting env variables e.g. > SUCCESS_PRIORITY=5 notify ...
 SUCCESS_PRIORITY = int(getenv("SUCCESS_PRIORITY", 3))
 FAILURE_PRIORITY = int(getenv("FAILURE_PRIORITY", 4))
 
