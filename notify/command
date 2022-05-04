@@ -20,7 +20,7 @@ def _send_notification(command, error):
     data = {
         "topic": getenv("NTFY_TOPIC"),
         "tags": ["tada"],
-        "message": f"* {command} * completed with return code {error}",
+        "message": f"> {command} :: completed with return code {error}",
         "title": "Command success",
         "priority": SUCCESS_PRIORITY,
     }
