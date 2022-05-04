@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# notify with command result using ntfy
+# notify at end of command execution with result
 
 import sys
 from os import getenv
@@ -19,6 +19,7 @@ ALIAS = getenv("ALIAS", None)
 def _send_notification(command, error):
     data = {
         "topic": getenv("NTFY_TOPIC"),
+        "tags": "tada",
         "message": f"* {command} * completed with return code {error}",
         "title": "Command success",
         "priority": SUCCESS_PRIORITY,
@@ -26,6 +27,7 @@ def _send_notification(command, error):
     if error:
         data["title"] = "Command failure"
         data["priority"] = FAILURE_PRIORITY
+        data["tags"] = "warning"
 
     post("https://ntfy.sh", json=data)
 
