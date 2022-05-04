@@ -2,7 +2,6 @@
 
 # notify when device is logged into via ssh
 set -o errexit
-set -o nounset
 IFS=
 
 if [ "${PAM_TYPE}" = "open_session" ]; then
