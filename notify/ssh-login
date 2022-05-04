@@ -8,6 +8,7 @@ if [ "${PAM_TYPE}" = "open_session" ]; then
 	curl \
 		-H prio:high \
 		-H tags:warning \
+		-H "Title: SSH login on $HOSTNAME" \
 		-d "SSH login: ${PAM_USER} from ${PAM_RHOST}" \
 		ntfy.sh/$NTFY_TOPIC
 fi
