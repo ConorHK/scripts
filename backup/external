@@ -28,6 +28,7 @@ borg create                         \
     ::'{hostname}-{now}'            \
     /home/conor/docs                \
     /home/conor/media               \
+    /home/conor/.ssh                \
 
 backup_exit=$?
 
