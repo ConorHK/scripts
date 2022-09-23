@@ -1,0 +1,34 @@
+#!/usr/bin/env sh
+
+# generic reminder
+#
+# Requires zsh compatibility. Writes reminder messages to $messages_directory that are 'cat'ted before each shell. Must be run with REMINDER, PERIOD and REMINDER TEXT variables defined.
+set -o errexit
+IFS=
+	
+run_indicator="$REMINDER_INDICATORS/$REMINDER"
+
+if [ ! -d "$REMINDER_MESSAGES" ]; then
+	mkdir -p "$REMINDER_MESSAGES"
+fi
+if [ ! -d "$REMINDER_INDICATORS" ]; then
+	mkdir -p "$REMINDER_INDICATORS"
+fi
+
+if [ ! -f "$run_indicator" ]; then
+	echo "$REMINDER_TEXT" > "$REMINDER_MESSAGES/$REMINDER"
+	exit
+fi
+
+# in seconds
+last_modified_time=$(date +%s -r $run_indicator)
+current_time=$(date +%s)
+elapsed_time=$((current_time - last_modified_time))
+
+if [ "$elapsed_time" -ge "$PERIOD" ]; then
+	echo "$REMINDER_TEXT" > "$REMINDER_MESSAGES/$REMINDER"
+	exit
+fi
+
+rm "$REMINDER_MESSAGES/$REMINDER" 2> /dev/null
+exit
