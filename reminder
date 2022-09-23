@@ -8,12 +8,8 @@ IFS=
 	
 run_indicator="$REMINDER_INDICATORS/$REMINDER"
 
-if [ ! -d "$REMINDER_MESSAGES" ]; then
-	mkdir -p "$REMINDER_MESSAGES"
-fi
-if [ ! -d "$REMINDER_INDICATORS" ]; then
-	mkdir -p "$REMINDER_INDICATORS"
-fi
+mkdir -p "$REMINDER_MESSAGES"
+mkdir -p "$REMINDER_INDICATORS"
 
 if [ ! -f "$run_indicator" ]; then
 	echo "$REMINDER_TEXT" > "$REMINDER_MESSAGES/$REMINDER"
