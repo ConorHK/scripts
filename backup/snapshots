@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+
+# backup most recent btrfs snapshot
+set -o errexit
+set -o nounset
+IFS=
+	
+newest=$(ls /.snapshots | sort --numeric-sort | tail -n 1)
+sudo rclone sync --config /home/conor/.config/rclone/rclone-root.conf $newest encrypted-snapshots:
