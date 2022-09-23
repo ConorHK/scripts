@@ -72,4 +72,7 @@ else
     info "Backup, Prune, and/or Compact finished with errors"
 fi
 
+if [ "$global_exit" -eq 0 ]; then
+    touch $REMINDER_INDICATORS/external_backup
+fi
 exit ${global_exit}
