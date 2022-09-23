@@ -6,14 +6,18 @@
 set -o errexit
 IFS=
 	
+message_and_exit() {
+	echo "$REMINDER_TEXT" > "$REMINDER_MESSAGES/$REMINDER"
+	exit
+}
+
 run_indicator="$REMINDER_INDICATORS/$REMINDER"
 
 mkdir -p "$REMINDER_MESSAGES"
 mkdir -p "$REMINDER_INDICATORS"
 
 if [ ! -f "$run_indicator" ]; then
-	echo "$REMINDER_TEXT" > "$REMINDER_MESSAGES/$REMINDER"
-	exit
+	message_and_exit
 fi
 
 # in seconds
@@ -22,9 +26,9 @@ current_time=$(date +%s)
 elapsed_time=$((current_time - last_modified_time))
 
 if [ "$elapsed_time" -ge "$PERIOD" ]; then
-	echo "$REMINDER_TEXT" > "$REMINDER_MESSAGES/$REMINDER"
-	exit
+	message_and_exit
 fi
+
 
 rm "$REMINDER_MESSAGES/$REMINDER" 2> /dev/null
 exit
