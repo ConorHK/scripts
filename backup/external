@@ -37,6 +37,8 @@ borg create                         \
     /home/conor/docs                \
     /home/conor/media               \
     /home/conor/.ssh                \
+    /home/conor/.config/rclone      \
+    /home/conor/.config/gnupg       \
 
 backup_exit=$?
 
