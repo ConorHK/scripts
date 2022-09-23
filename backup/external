@@ -9,8 +9,16 @@ IFS=
 export BORG_REPO=/mnt/userfiles/
 
 if [ ! -d "$BORG_REPO" ]; then
-    echo "Directory $BORG_REPO doesn't exist. Check if external drive is mounted." 1>&2
-    exit 1
+    echo "Directory $BORG_REPO doesn't exist. Attempting to mount..."
+    echo "Collecting drive location..."
+    drive=$(sudo fdisk -l | grep "Elements 2620" -A10 | tail -1 | awk '{print $1}')
+    if [ -z "$drive" ]; then
+	echo "Failed to find external drive." 1>&2
+	exit 1
+    fi
+    echo "Found drive partition at '$drive'!"
+    echo "Mounting '$drive' at '/mnt'..."
+    sudo mount $drive /mnt
 fi
 
 info() { printf "\n%s %s\n\n" "$( date )" "$*" >&2; }
