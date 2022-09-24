@@ -7,22 +7,26 @@ IFS=
 	
 
 export BORG_REPO=/mnt/userfiles/
+export BACKUP_DRIVE="Elements 2620"
+
+info() { printf "\n%s %s\n\n" "$( date )" "$*" >&2; }
 
 if [ ! -d "$BORG_REPO" ]; then
-    echo "Directory $BORG_REPO doesn't exist. Attempting to mount..."
-    echo "Collecting drive location..."
-    drive=$(sudo fdisk -l | grep "Elements 2620" -A10 | tail -1 | awk '{print $1}')
+    info "Directory $BORG_REPO doesn't exist. Attempting to mount..."
+    info "Collecting drive location..."
+    drive=$(sudo fdisk -l | grep "$BACKUP_DRIVE" -A10 | tail -1 | awk '{print $1}')
     if [ -z "$drive" ]; then
 	echo "Failed to find external drive." 1>&2
 	exit 1
     fi
-    echo "Found drive partition at '$drive'!"
-    echo "Mounting '$drive' at '/mnt'..."
+    info "Found drive partition at '$drive'"
+    info "Mounting '$drive' at '/mnt'..."
     sudo mount $drive /mnt
 fi
 
-info() { printf "\n%s %s\n\n" "$( date )" "$*" >&2; }
 trap 'echo $( date ) Backup interrupted >&2; exit 2' INT TERM
+
+info "Creating backup archive"
 
 borg create                         \
     --verbose                       \
@@ -72,7 +76,7 @@ else
     info "Backup, Prune, and/or Compact finished with errors"
 fi
 
-if [ "$global_exit" -eq 0 ]; then
+if [ "$global_exit" -eq 0 || "$global_exit" -eq 1  ]; then
     touch $REMINDER_INDICATORS/external_backup
 fi
 exit ${global_exit}
