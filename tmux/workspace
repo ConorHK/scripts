@@ -4,6 +4,6 @@
 set -o errexit
 set -o nounset
 IFS=
-	
+
 session="ws$(bspc query -D -d .focused --names)"
 tmux new-session -A -s "$session"

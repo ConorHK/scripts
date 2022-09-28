@@ -18,10 +18,16 @@ logger.setLevel(logging.DEBUG)
 
 
 MAX_AUDIO_LEVEL = 153
-sinks = {"headphones": os.environ.get("HEADPHONES"), "speakers": os.environ.get("SPEAKERS"), "boom": os.environ.get("BOOM")}
+sinks = {
+    "headphones": os.environ.get("HEADPHONES"),
+    "speakers": os.environ.get("SPEAKERS"),
+    "boom": os.environ.get("BOOM"),
+}
 
 
-def _get_sink_index(target_sink: str, connected_sinks: List[PulseSinkInfo]) -> List[int]:
+def _get_sink_index(
+    target_sink: str, connected_sinks: List[PulseSinkInfo]
+) -> List[int]:
     """
     Gets sink index for the given sinks
     :param target_sink: Target sink
@@ -50,7 +56,9 @@ def _get_active_sink(
         print("No active inputs")
         sys.exit()
     sink_inputs = [input.sink for input in input_list]
-    active_sink = next((sink for sink in sink_list if sink.index == mode(sink_inputs)), None)
+    active_sink = next(
+        (sink for sink in sink_list if sink.index == mode(sink_inputs)), None
+    )
     if active_sink:
         return active_sink
     logger.critical("Active sink %d not found", mode(sink_inputs))
@@ -63,14 +71,20 @@ def swap_sinks(sink_name: str):
     :param sink_name: Name of sink to swap to
     """
     with Pulse("sink_switcher") as pulse:
-        target_sink = _get_sink_index(target_sink=sink_name, connected_sinks=pulse.sink_list())
+        target_sink = _get_sink_index(
+            target_sink=sink_name, connected_sinks=pulse.sink_list()
+        )
         for input_object in pulse.sink_input_list():
             try:
-                logger.info("Moving input %d to sink %d", input_object.index, target_sink)
+                logger.info(
+                    "Moving input %d to sink %d", input_object.index, target_sink
+                )
                 pulse.sink_input_move(input_object.index, target_sink)
             except PulseOperationFailed:
                 logger.warning(
-                    "unable to move input %d to sink %d", input_object.index, target_sink
+                    "unable to move input %d to sink %d",
+                    input_object.index,
+                    target_sink,
                 )
 
 
@@ -96,7 +110,9 @@ def status(status_type: str):
         active_sink = _get_active_sink(
             input_list=pulse.sink_input_list(), sink_list=pulse.sink_list()
         )
-        volume = int(round((active_sink.volume.value_flat / MAX_AUDIO_LEVEL) * 100 * 100))
+        volume = int(
+            round((active_sink.volume.value_flat / MAX_AUDIO_LEVEL) * 100 * 100)
+        )
         muted = "playing" if active_sink.mute == 0 else "muted"
         if status_type == "output":
             return f"{active_sink.description}"
@@ -146,7 +162,11 @@ def _make_parser() -> argparse.ArgumentParser:
         help="Name of target output e.g. 'speakers', 'headphones'",
     )
     parser.add_argument(
-        "--change_volume", "-v", dest="change_volume", type=int, help="Amount to change volume by"
+        "--change_volume",
+        "-v",
+        dest="change_volume",
+        type=int,
+        help="Amount to change volume by",
     )
     parser.add_argument(
         "--status",
