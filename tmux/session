@@ -6,4 +6,4 @@ IFS=
 selected=$(tmux list-sessions -F "#{session_name}" 2>/dev/null | fzf --preview='tmux capture-pane -ep -t {}' --print-query)
 selected="${selected##*$'\n'}"
 
-tmux switch-client -t "$selected" &>/dev/null || tmux -f $HOME/.config/tmux/tmux.conf attach -t "$selected"  &>/dev/null || tmux -f $HOME/.config/tmux/tmux.conf attach new -s "$selected"
+tmux switch-client -t "$selected" &>/dev/null || tmux -f $HOME/.config/tmux/tmux.conf attach -t "$selected"  &>/dev/null || tmux -f $HOME/.config/tmux/tmux.conf new -s "$selected"
