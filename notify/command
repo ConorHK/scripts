@@ -45,5 +45,6 @@ def main():
     command_string = " ".join(command) if not ALIAS else ALIAS
     _send_notification(command_string, process.returncode, timedelta(seconds=end_time - start_time))
 
+
 if __name__ == "__main__":
     main()
