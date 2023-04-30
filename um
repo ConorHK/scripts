@@ -1,0 +1,30 @@
+#!/usr/bin/env sh
+
+# Print um document
+set -o errexit
+IFS=
+
+UMDIR="/home/$USER/docs/wiki/um"
+
+# display help
+if [ "$1" = "" ]; then
+	echo "um ed - open the um wiki page to edit entries"
+	echo
+	for path in "$UMDIR"/*.md; do
+		fname=$(basename "$path")
+		echo "${fname%.*}"
+	done
+	echo ""
+	exit 0
+fi
+
+# edit/create an entry
+if [ "$1" = "ed" ]; then
+	"$EDITOR" "$UMDIR/index.md"
+	return
+fi
+
+# display requested entry
+#cat $UMDIR/*$1*  <---- doesn't exclude vim backups (ending in ~)
+# -exec <cmd> {} + puts the matching filenames as args like xargs
+find "$UMDIR"/ -type f -name "*$1*.md" -not -name '*~' -exec cat {} +
