@@ -21,7 +21,7 @@ if [ ! -d "$BORG_REPO" ]; then
     fi
     info "Found drive partition at '$drive'"
     info "Mounting '$drive' at '/mnt'..."
-    sudo mount $drive /mnt
+    sudo mount "$drive" /mnt
 fi
 
 trap 'echo $( date ) Backup interrupted >&2; exit 2' INT TERM
@@ -76,7 +76,11 @@ else
     info "Backup, Prune, and/or Compact finished with errors"
 fi
 
-if [ "$global_exit" -eq 0 || "$global_exit" -eq 1  ]; then
-    touch $REMINDER_INDICATORS/external_backup
+if [ "$global_exit" -eq 0 ] || [ "$global_exit" -eq 1 ]; then
+    touch "$REMINDER_INDICATORS/external_backup"
 fi
+
+info "Unmounting drive"
+sudo umount /mnt
+
 exit ${global_exit}
