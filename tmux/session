@@ -1,9 +1,10 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 # selects tmux session using fzf or creates one if required
 IFS=
 	
 selected=$(tmux list-sessions -F "#{session_name}" 2>/dev/null | fzf --preview='tmux capture-pane -ep -t {}' --print-query)
 selected="${selected##*$'\n'}"
+[ -z "$selected" ] && exit 0
 
-tmux switch-client -t "$selected" || tmux -f $HOME/.config/tmux/tmux.conf attach -t "$selected"  || tmux -f $HOME/.config/tmux/tmux.conf new -s "$selected"
+tmux switch-client -t "$selected" || tmux -f "$HOME"/.config/tmux/tmux.conf attach -t "$selected"  || tmux -f "$HOME"/.config/tmux/tmux.conf new -s "$selected"

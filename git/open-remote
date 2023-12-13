@@ -13,4 +13,5 @@ else
 	repo="https://$(printf "%s" "$remote" | cut -d "@" -f 2 | tr ":" "/")"
 fi
 
+echo "$repo"
 util-open "$repo"
