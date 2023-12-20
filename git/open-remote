@@ -9,8 +9,10 @@ remote="$(git config remote.origin.url)"
 remote_type="$(printf '%s' "$remote" | cut -c -5)"
 if [ X"$remote_type" = X"https" ]; then
 	repo="$remote"
-else
+elif util-contains "$remote" "@"; then
 	repo="https://$(printf "%s" "$remote" | cut -d "@" -f 2 | tr ":" "/")"
+else
+	repo="https://code.amazon.com/packages/$(printf "%s" "$remote" | cut -d "/" -f 5)"
 fi
 
 echo "$repo"
