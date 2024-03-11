@@ -25,7 +25,7 @@ def get_local_notification_time(timestamp: int, current_zone):
 def is_push_required(timestamp: int, timezone: str = "Europe/Dublin"):
     current_zone = tz.gettz(timezone)
     now = datetime.now(current_zone)
-    return get_local_notification_time(timestamp, current_zone).date() == now.date() and not path.isfile("/tmp/bereal_indicator.txt")
+    return get_local_notification_time(timestamp, current_zone).date() == now.date()
 
 def push_notification():
     with open ("/tmp/bereal_indicator.txt", "xt") as f:
@@ -41,6 +41,8 @@ def push_notification():
     requests.post("https://ntfy.sh", json=data)
 
 def main():
+    if path.isfile("/tmp/bereal_indicator.txt"):
+        return
     response = requests.get(url=URL).json()
     if is_push_required(timestamp=response["regions"]["europe-west"]["ts"]):
         logger.info("Pushing notification")
