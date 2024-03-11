@@ -1,0 +1,30 @@
+#!/usr/bin/env sh
+
+# backup to b2
+set -o errexit
+set -o nounset
+IFS=
+	
+info() { printf "%s %s" "$( date )" "$*" >&2; }
+
+info "Backing up home-assistant"
+rclone sync -v /home/mustang/backup/home-assistant encrypted-b2:/home-assistant
+info "Backing up phone data"
+rclone sync -v /home/mustang/backup/phone encrypted-b2:/phone
+info "Backing up immich"
+backup-immich
+info "Backing up paperless-ngx"
+cd /home/mustang/containers/paperless-ngx && docker-compose exec -T webserver document_exporter ../export && cd -
+rclone sync -v /home/mustang/storage/paperless-ngx/export encrypted-b2:/paperless
+info "Backing up containers"
+rclone sync -v /home/mustang/containers encrypted-b2:/containers
+info "Backing up ssh config"
+rclone sync -v /home/mustang/.ssh encrypted-b2:/ssh
+info "Backing up docs"
+rclone sync -v /home/mustang/docs encrypted-b2:/docs
+info "Backing up calibre"
+rclone sync -v /home/mustang/storage/calibre encrypted-b2:/calibre
+rclone sync -v /home/mustang/storage/media/books encrypted-b2:/books
+info "Backing up tracking data"
+rclone sync -v /home/mustang/location encrypted-b2:/location
+rclone sync -v /home/mustang/storage/owntracks encrypted-b2:/owntracks

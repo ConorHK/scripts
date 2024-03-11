@@ -9,7 +9,7 @@ IFS=
 export BORG_REPO=/mnt/userfiles/
 export BACKUP_DRIVE="Elements 2620"
 
-info() { printf "\n%s %s\n\n" "$( date )" "$*" >&2; }
+info() { printf "%s %s\n" "$( date )" "$*" >&2; }
 
 if [ ! -d "$BORG_REPO" ]; then
     info "Directory $BORG_REPO doesn't exist. Attempting to mount..."
@@ -26,6 +26,9 @@ fi
 
 trap 'echo $( date ) Backup interrupted >&2; exit 2' INT TERM
 
+info "Creating immich database dump"
+docker exec -t immich_postgres pg_dumpall -c -U admin | gzip > "/home/mustang/backup/immich_postgres.sql.gz"
+
 info "Creating backup archive"
 
 borg create                         \
@@ -38,11 +41,16 @@ borg create                         \
     --exclude-caches                \
                                     \
     ::'{hostname}-{now}'            \
-    /home/conor/docs                \
-    /home/conor/media               \
-    /home/conor/.ssh                \
-    /home/conor/.config/rclone      \
-    /home/conor/.config/gnupg       \
+    /home/$USER/docs                \
+    /home/$USER/containers          \
+    /home/$USER/.ssh                \
+    /home/$USER/storage/immich/library  \
+    /home/$USER/storage/immich/upload \
+    /home/$USER/storage/media/books \
+    /home/$USER/storage/owntracks/ \
+    /home/$USER/backup/immich_postgres.sql.gz \
+    /home/$USER/backup/home-assistant \
+    /home/$USER/backup/phone \
 
 backup_exit=$?
 

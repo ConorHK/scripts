@@ -1,0 +1,17 @@
+#!/usr/bin/env sh
+
+# backup immich to b2
+set -o errexit
+set -o nounset
+IFS=
+	
+info() { printf "\n%s %s\n\n" "$( date )" "$*" >&2; }
+
+info "Backing up library folder"
+rclone sync -v /home/mustang/storage/immich/library encrypted-b2:/immich/library
+info "Backing up upload folder"
+rclone sync -v /home/mustang/storage/immich/upload encrypted-b2:/immich/upload
+info "Creating postgres dump"
+docker exec -t immich_postgres pg_dumpall -c -U admin | gzip > "/home/mustang/backup/immich_postgres.sql.gz"
+info "Backing up dump"
+rclone sync -v /home/mustang/backup/immich_postgres.sql.gz encrypted-b2:/immich/
