@@ -6,9 +6,9 @@ import sys
 import time
 from datetime import timedelta
 from os import getenv
-from requests import post
 from subprocess import run as subprocess_run
 
+from requests import post
 
 # Override priorities by inline setting env variables e.g. > SUCCESS_PRIORITY=5 notify ...
 SUCCESS_PRIORITY = int(getenv("SUCCESS_PRIORITY", 3))
@@ -18,7 +18,7 @@ FAILURE_PRIORITY = int(getenv("FAILURE_PRIORITY", 4))
 ALIAS = getenv("ALIAS", None)
 
 
-def _send_notification(command, error, execution_time):
+def _send_notification(command, error, execution_time) -> None:
     data = {
         "topic": getenv("NTFY_TOPIC"),
         "tags": ["tada"],
@@ -34,15 +34,16 @@ def _send_notification(command, error, execution_time):
     post("https://ntfy.sh", json=data)
 
 
-def main():
+def main() -> None:
     if not all(1 <= priority <= 5 for priority in [SUCCESS_PRIORITY, FAILURE_PRIORITY]):
-        raise ValueError("Priority ranges between 1 (minimum) and 5 (maximum)")
+        msg = "Priority ranges between 1 (minimum) and 5 (maximum)"
+        raise ValueError(msg)
 
     command = sys.argv[1:]
     start_time = time.monotonic()
-    process = subprocess_run(command)
+    process = subprocess_run(command, check=False)
     end_time = time.monotonic()
-    command_string = " ".join(command) if not ALIAS else ALIAS
+    command_string = ALIAS if ALIAS else " ".join(command)
     _send_notification(command_string, process.returncode, timedelta(seconds=end_time - start_time))
 
 
