@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+
+# copy to OSC52 buffer via pipe
+set -o errexit
+set -o nounset
+IFS=
+	
+content="$(base64 -w0)"
+exec echo -en "\x1b]52;c;${content}\x07"
