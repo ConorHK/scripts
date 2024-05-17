@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+
+# pretty logging
+set -o errexit
+set -o nounset
+IFS=
+	
+
+info() { printf "$(tput setaf 6)%s $(tput setaf 4)%s$(tput sgr0)\n" "$( date )" "$*" >&2; }
+info "$@"

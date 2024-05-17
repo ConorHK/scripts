@@ -20,11 +20,14 @@ URL = f"https://bereal.devin.rest/v1/moments/latest?api_key={API_KEY}"
 def get_local_notification_time(timestamp: int, current_zone):
     utc_zone = tz.gettz("UTC")
     utc = datetime.fromtimestamp(timestamp, utc_zone)
+    print(f"{utc}")
     return utc.astimezone(current_zone)
 
 def is_push_required(timestamp: int, timezone: str = "Europe/Dublin"):
     current_zone = tz.gettz(timezone)
+    print(f"{current_zone}")
     now = datetime.now(current_zone)
+    print(f"{now}")
     return get_local_notification_time(timestamp, current_zone).date() == now.date()
 
 def push_notification():
@@ -42,13 +45,14 @@ def push_notification():
 
 def main():
     if path.isfile("/tmp/bereal_indicator.txt"):
+        print("Indicator found")
         return
     response = requests.get(url=URL).json()
     if is_push_required(timestamp=response["regions"]["europe-west"]["ts"]):
-        logger.info("Pushing notification")
+        print("Pushing notification")
         push_notification()
     else:
-        logger.info("Notification not required")
+        print("Notification not required")
 
 if __name__ == "__main__":
     main()

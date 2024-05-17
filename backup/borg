@@ -1,0 +1,104 @@
+#!/usr/bin/env bash
+
+# backup to borg repo
+# BORG_REPO required to be set
+set -o errexit
+IFS=
+	
+
+if [ -z "$BORG_REPO" ]; then 
+    util-emphasise "BORG_REPO must be set"
+    exit 1
+fi
+
+trap 'echo $( date ) backup interrupted >&2; exit 2' INT TERM
+
+util-log "creating immich database dump"
+docker exec -t immich_postgres pg_dumpall -c -U admin | gzip > "$HOME/backup/immich_postgres.sql.gz"
+util-log "creating paperless export"
+cd "$HOME/containers/paperless-ngx" && docker-compose exec -T webserver document_exporter ../export && cd -
+
+util-log "collecting home-assistant backups"
+rsync -avzP --delete 192.168.0.52:/backup /home/mustang/backup/home-assistant
+
+declare -a containers=( "audiobookshelf" "calibre" "jellyfin" "jellyseer" "nginxproxymanager" "owntracks" "paperless-ngx" "prowlarr" "qbittorrent" "radarr" "readarr" "sonarr" )
+
+for container in "${containers[@]}"; do
+	util-log "stopping $container"
+	cd "$HOME/containers/$container" && docker-compose stop && cd -
+done
+
+util-log "creating backup archive"
+
+/usr/local/bin/borg create                         \
+    --verbose                       \
+    --filter AME                    \
+    --list                          \
+    --stats                         \
+    --show-rc                       \
+    --compression lz4               \
+    --exclude-caches                \
+                                    \
+    ::'{hostname}-{now}'            \
+    "$HOME/docs"                \
+    "$HOME/containers"          \
+    "$HOME/.ssh"                \
+    "$HOME/storage/audiobookshelf/config"  \
+    "$HOME/storage/media/books" \
+    "$HOME/storage/calibre/calibre-server/config"  \
+    "$HOME/storage/calibre/calibre-web/config"  \
+    "$HOME/storage/jellyfin/config"  \
+    "$HOME/storage/jellyseer/config"  \
+    "$HOME/storage/nginx/data"  \
+    "$HOME/storage/owntracks/" \
+    "$HOME/storage/paperless-ngx/export" \
+    "$HOME/storage/prowlarr/Backups" \
+    "$HOME/storage/qbittorrent/config" \
+    "$HOME/storage/radarr/Backups" \
+    "$HOME/storage/readarr/Backups" \
+    "$HOME/storage/sonarr/Backups" \
+    "/opt/wireguard-server/config" \
+    "$HOME/backup/immich_postgres.sql.gz" \
+    "$HOME/backup/home-assistant" \
+    "$HOME/backup/phone" \
+    "$HOME/storage/immich/library"  \
+    "$HOME/storage/immich/upload" \
+    --exclude "$HOME/storage/nginx/data/logs" \
+
+backup_exit="$?"
+
+for container in "${containers[@]}"; do
+	util-log "starting $container"
+	cd "$HOME/containers/$container" && docker-compose start && cd -
+done
+
+util-log "pruning repository"
+
+/usr/local/bin/borg prune                          \
+    --list                          \
+    --glob-archives '{hostname}-*'  \
+    --show-rc                       \
+    --keep-weekly   1               \
+    --keep-monthly  2               \
+    --keep-yearly   6               \
+    --save-space                    \
+
+prune_exit=$?
+
+util-log "compacting repository"
+
+/usr/local/bin/borg compact
+
+compact_exit=$?
+
+global_exit=$(( backup_exit > prune_exit ? backup_exit : prune_exit ))
+global_exit=$(( compact_exit > global_exit ? compact_exit : global_exit ))
+
+if [ ${global_exit} -eq 0 ]; then
+    util-emphasise "backup, prune, and compact finished successfully"
+elif [ ${global_exit} -eq 1 ]; then
+    util-emphasise "backup, prune, and/or compact finished with warnings"
+else
+    util-emphasise "backup, prune, and/or compact finished with errors"
+fi
+exit "$global_exit"

@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+# pretty emphasise
+set -o errexit
+set -o nounset
+IFS=
+	
+printf "$(tput setaf 6)%s $(tput bold)$(tput setaf 3)%s$(tput setaf 7) %s$(tput sgr0)\n" "$( date )" "$1" "${@:2}">&2;

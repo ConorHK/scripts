@@ -9,86 +9,26 @@ IFS=
 export BORG_REPO=/mnt/userfiles/
 export BACKUP_DRIVE="Elements 2620"
 
-info() { printf "%s %s\n" "$( date )" "$*" >&2; }
-
 if [ ! -d "$BORG_REPO" ]; then
-    info "Directory $BORG_REPO doesn't exist. Attempting to mount..."
-    info "Collecting drive location..."
+    util-log "Directory $BORG_REPO doesn't exist. Attempting to mount..."
+    util-log "Collecting drive location..."
     drive=$(sudo fdisk -l | grep "$BACKUP_DRIVE" -A10 | tail -1 | awk '{print $1}')
     if [ -z "$drive" ]; then
-	echo "Failed to find external drive." 1>&2
+	util-emphasise "Failed to find external drive." 1>&2
 	exit 1
     fi
-    info "Found drive partition at '$drive'"
-    info "Mounting '$drive' at '/mnt'..."
+    util-log "Found drive partition at '$drive'"
+    util-log "Mounting '$drive' at '/mnt'..."
     sudo mount "$drive" /mnt
 fi
 
-trap 'echo $( date ) Backup interrupted >&2; exit 2' INT TERM
+backup-borg | tee /tmp/backup-borg-external.log
 
-info "Creating immich database dump"
-docker exec -t immich_postgres pg_dumpall -c -U admin | gzip > "/home/mustang/backup/immich_postgres.sql.gz"
-
-info "Creating backup archive"
-
-borg create                         \
-    --verbose                       \
-    --filter AME                    \
-    --list                          \
-    --stats                         \
-    --show-rc                       \
-    --compression lz4               \
-    --exclude-caches                \
-                                    \
-    ::'{hostname}-{now}'            \
-    /home/$USER/docs                \
-    /home/$USER/containers          \
-    /home/$USER/.ssh                \
-    /home/$USER/storage/immich/library  \
-    /home/$USER/storage/immich/upload \
-    /home/$USER/storage/media/books \
-    /home/$USER/storage/owntracks/ \
-    /home/$USER/backup/immich_postgres.sql.gz \
-    /home/$USER/backup/home-assistant \
-    /home/$USER/backup/phone \
-
-backup_exit=$?
-
-info "Pruning repository"
-
-borg prune                          \
-    --list                          \
-    --glob-archives '{hostname}-*'  \
-    --show-rc                       \
-    --keep-weekly   1               \
-    --keep-monthly  2               \
-    --keep-yearly   6               \
-    --save-space                    \
-
-prune_exit=$?
-
-info "Compacting repository"
-
-borg compact
-
-compact_exit=$?
-
-global_exit=$(( backup_exit > prune_exit ? backup_exit : prune_exit ))
-global_exit=$(( compact_exit > global_exit ? compact_exit : global_exit ))
-
-if [ ${global_exit} -eq 0 ]; then
-    info "Backup, Prune, and Compact finished successfully"
-elif [ ${global_exit} -eq 1 ]; then
-    info "Backup, Prune, and/or Compact finished with warnings"
-else
-    info "Backup, Prune, and/or Compact finished with errors"
-fi
-
-if [ "$global_exit" -eq 0 ] || [ "$global_exit" -eq 1 ]; then
+if [ "$?" -eq 0 ] || [ "$?" -eq 1 ]; then
     touch "$REMINDER_INDICATORS/external_backup"
 fi
 
-info "Unmounting drive"
+util-log "Unmounting drive"
 sudo umount /mnt
 
-exit ${global_exit}
+exit "$?"
