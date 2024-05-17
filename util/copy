@@ -5,5 +5,9 @@ set -o errexit
 set -o nounset
 IFS=
 	
-content="$(base64 -w0)"
+if [ $# -eq 0 ]; then
+	content="$(base64 -w0)"
+else
+	content="$(printf "%s" "$1" | base64 -w0)"
+fi
 exec echo -en "\x1b]52;c;${content}\x07"
