@@ -16,4 +16,5 @@ else
 fi
 
 echo "$repo"
+util-copy "$repo"
 util-open "$repo"
