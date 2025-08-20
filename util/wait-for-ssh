@@ -1,0 +1,138 @@
+#!/bin/sh
+
+# wait-for-ssh - Wait for SSH connection with retry logic
+
+# Usage: wait-for-ssh [ssh-options] user@host [command]
+
+# Environment variables:
+#   WAIT_FOR_SSH_TIMEOUT   Maximum wait time in seconds (default: 1800 = 30min)
+
+# Default timeout in seconds (30 minutes)
+DEFAULT_TIMEOUT=1800
+
+# Get timeout from environment variable or use default
+TIMEOUT=${WAIT_FOR_SSH_TIMEOUT:-$DEFAULT_TIMEOUT}
+
+# Retry interval in seconds
+RETRY_INTERVAL=5
+
+usage() {
+    echo "Usage: $0 [ssh-options] user@host [command]"
+    echo "  Waits for SSH connection to become available before connecting"
+    echo ""
+    echo "Environment variables:"
+    echo "  WAIT_FOR_SSH_TIMEOUT - Maximum wait time in seconds (default: 1800 = 30min)"
+    echo ""
+    echo "Examples:"
+    echo "  $0 user@example.com"
+    echo "  $0 -p 2222 user@example.com"
+    echo "  $0 -i ~/.ssh/key user@example.com 'ls -la'"
+    exit 1
+}
+
+# Ensure at least one argument is provided
+if [ $# -eq 0 ]; then
+    usage
+fi
+
+# Extract host:port from SSH arguments
+extract_host() {
+    args="$*"
+    host=""
+    port="22"
+
+    # We iterate over positional parameters manually
+    set -- $args
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            -p)
+                shift
+                port="$1"
+                ;;
+            -[CFJLORSWbefiopw])
+                # These flags take an argument immediately after
+                shift
+                ;;
+            -*)
+                # Flags without arguments, nothing to skip
+                ;;
+            *)
+                # First non-flag is user@host
+                if [ -z "$host" ]; then
+                    host="$1"
+                fi
+                ;;
+        esac
+        shift
+    done
+
+    echo "$host:$port"
+}
+
+# Test SSH connectivity (quiet, no password prompt)
+test_ssh_connection() {
+    host_info="$1"
+    host=$(printf "%s" "$host_info" | cut -d: -f1)
+    port=$(printf "%s" "$host_info" | cut -d: -f2)
+
+    # Strip user@ if present
+    host_only=${host##*@}
+
+    # Quick connection test
+    ssh -o BatchMode=yes -o ConnectTimeout=5 -o StrictHostKeyChecking=no \
+        -o UserKnownHostsFile=/dev/null -o LogLevel=quiet \
+        -p "$port" "$host" exit >/dev/null 2>&1
+
+    return $?
+}
+
+# Format seconds as Hh Mm Ss
+format_duration() {
+    secs=$1
+    h=$((secs / 3600))
+    m=$(((secs % 3600) / 60))
+    s=$((secs % 60))
+
+    if [ "$h" -gt 0 ]; then
+        printf "%dh %dm %ds" "$h" "$m" "$s"
+    elif [ "$m" -gt 0 ]; then
+        printf "%dm %ds" "$m" "$s"
+    else
+        printf "%ds" "$s"
+    fi
+}
+
+main() {
+    start_time=$(date +%s)
+    attempt=1
+
+    host_info=$(extract_host "$@")
+    host_only=$(printf "%s" "$host_info" | cut -d: -f1)
+    display_host=${host_only##*@}
+
+    echo "Waiting for SSH to $display_host (timeout: $(format_duration "$TIMEOUT"))"
+
+    while :; do
+        now=$(date +%s)
+        elapsed=$((now - start_time))
+        if [ "$elapsed" -ge "$TIMEOUT" ]; then
+            echo "ERROR: Timeout after $(format_duration "$elapsed"). Could not connect to $display_host"
+            exit 1
+        fi
+
+        printf "Attempt %d (%s elapsed): " \
+            "$attempt" "$(format_duration "$elapsed")"
+
+        if test_ssh_connection "$host_info"; then
+            echo "SUCCESS"
+            echo "Invoking: ssh $*"
+            exec ssh "$@"
+        else
+            echo "failed, retrying in ${RETRY_INTERVAL}s..."
+            sleep "$RETRY_INTERVAL"
+            attempt=$((attempt + 1))
+        fi
+    done
+}
+
+main "$@"
